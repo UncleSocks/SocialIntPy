@@ -106,7 +106,7 @@ class ConstructFbUrl:
         new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{self.selected_type}" + f"?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
         return new_fb_url
     
-    def construct_profile_url(self, id, profile_id, profile):
+    def construct_people_url(self, id, profile_id):
         profile_map = {
             "employer id":{"filter":"employer", "name":"users_employer"}, 
             "city id":{"filter":"city", "name":"users_location"}, 
@@ -115,7 +115,11 @@ class ConstructFbUrl:
         
         raw_filter = f'{{"{profile_map[id]["filter"]}":"{{\\"name\\":\\"{profile_map[id]["name"]}\\",\\"args\\":\\"{profile_id}\\"}}"}}'
         encoded_filter = encode(raw_filter)
-        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"people/?q={profile}" + f"&epa=FILTERS&filters={encoded_filter}"
+        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"people/?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        return new_fb_url
+    
+    def construct_places_url(self):
+        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"places/?q={self.keyword}" 
         return new_fb_url
     
     def construct_username_url(self, username):
@@ -129,7 +133,7 @@ class ConstructFbUrl:
         
 
     def construct_url(self):
-        id  = id_types.get().lower()
+        id = id_types.get().lower()
         username = username_entry.get().lower()
         if id == "user id":
             user_id = id_entry.get()
@@ -145,14 +149,18 @@ class ConstructFbUrl:
         
         elif id == "employer id" or id == "city id" or id == "school id":
             profile_id = id_entry.get()
-            profile = quote(profile_entry.get())
-            new_fb_url = self.construct_profile_url(id, profile_id, profile)
+            self._capture_keyword_and_year()
+            new_fb_url = self.construct_people_url(id, profile_id)
             return new_fb_url
         
         elif username:
             new_fb_url = self.construct_username_url(username)
             return new_fb_url
-            
+        
+        elif self.selected_type == "places":
+            self._capture_keyword_and_year()
+            new_fb_url = self.construct_places_url()
+            return new_fb_url
 
 
 
@@ -184,8 +192,8 @@ def display_ids(event=None):
         select_year.config(state="readonly")
         select_year.set("Top")
 
-        profile_entry.delete(0, tk.END)
-        profile_entry.config(state="disabled")
+        #profile_entry.delete(0, tk.END)
+        #profile_entry.config(state="disabled")
         
         username_entry.delete(0, tk.END)
         username_entry.config(state="disabled")
@@ -193,21 +201,34 @@ def display_ids(event=None):
         uname_information.set("")
         uname_information.config(state="disabled")
 
-    elif selected_type == "profiles":
+    elif selected_type == "people":
         id_types.config(values=["Employer ID", "City ID", "School ID"], state="readonly")
-        profile_entry.config(state="normal")
-        keyword_entry.delete(0, tk.END)
-        keyword_entry.config(state="disabled")
+        #profile_entry.config(state="normal")
+        keyword_entry.config(state="normal")
         select_year.set("")
         select_year.config(state="disabled")
+
+    elif selected_type == "places":
+        keyword_entry.config(state="normal")
+        id_types.set("")
+        id_types.config(state="disabled")
+        
+        select_year.set("")
+        select_year.config(state="disabled")
+        
+        username_entry.delete(0, tk.END)
+        username_entry.config(state="disabled")
+        
+        uname_information.set("")
+        uname_information.config(state="disabled")
 
     elif selected_type == "events":
         id_types.config(values=["Location ID"], state="readonly")
         select_year.set("")
         select_year.config(state="disabled")
 
-        profile_entry.delete(0, tk.END)
-        profile_entry.config(state="disabled")
+        #profile_entry.delete(0, tk.END)
+        #profile_entry.config(state="disabled")
         
         username_entry.delete(0, tk.END)
         username_entry.config(state="disabled")
@@ -252,7 +273,7 @@ search_label = tk.Label(root, text="Search Type:")
 search_label.grid(row=0, column=0, padx=10, pady=10)
 
 search_types = ttk.Combobox(root,
-                            values=["Posts", "Photos", "Videos", "Profiles", "Events", "User Info", "Search"],
+                            values=["Posts", "Photos", "Videos", "People", "Places", "Events", "User Info", "Search"],
                             state="readonly")
 search_types.grid(row=0, column=1, padx=10)
 search_types.bind("<<ComboboxSelected>>", display_ids)
@@ -274,15 +295,15 @@ keyword_label.grid(row=2, column=0, padx=10)
 keyword_entry = tk.Entry(root, state="disabled")
 keyword_entry.grid(row=2, column=1, padx=10)
 
-profile_label = tk.Label(root, text="Profile Name:")
-profile_label.grid(row=2, column=2, padx=10)
-profile_entry = tk.Entry(root, state="disabled")
-profile_entry.grid(row=2, column=3)
+#profile_label = tk.Label(root, text="Profile Name:")
+#profile_label.grid(row=2, column=2, padx=10)
+#profile_entry = tk.Entry(root, state="disabled")
+#profile_entry.grid(row=2, column=3)
 
 year_label = tk.Label(root, text="Year:")
-year_label.grid(row=2, column=4, padx=10)
+year_label.grid(row=2, column=2, padx=10)
 select_year = ttk.Combobox(root, values=["Top", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010"],state="disabled")
-select_year.grid(row=2, column=5)
+select_year.grid(row=2, column=3)
 
 username_label = tk.Label(root, text="Username:")
 username_label.grid(row=3, column=0, padx=10, pady=15)
@@ -327,5 +348,5 @@ generate_button.grid(row=4, column=0, padx=20, pady=25)
 
 
 
-root.geometry("800x300")
+root.geometry("600x300")
 root.mainloop()
