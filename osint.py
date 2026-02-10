@@ -231,6 +231,8 @@ def display_ids(event=None):
         keyword_entry.config(state="normal")
         id_types.set("")
         id_types.config(state="disabled")
+        id_entry.delete(0, tk.END)
+        id_entry.config(state="disabled")
         
         select_year.set("")
         select_year.config(state="disabled")
@@ -299,7 +301,7 @@ def get_ids(event=None):
 
 
 search_label = tk.Label(root, text="Search Type:")
-search_label.grid(row=0, column=0, padx=10, pady=10)
+search_label.grid(row=0, column=0, padx=10, pady=20)
 
 search_types = ttk.Combobox(root,
                             values=["Posts", "Photos", "Videos", "People", "Places", "Events", "User Info", "Search"],
@@ -366,5 +368,5 @@ generate_button.grid(row=4, column=0, padx=20, pady=25)
 
 
 
-root.geometry("600x300")
+root.geometry("600x400")
 root.mainloop()
