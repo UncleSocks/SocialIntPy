@@ -11,45 +11,48 @@ root.title("Social Media Intelligence Filter-inator")
 
 FACEBOOK_BASE_URL = "https://www.facebook.com/"
 FACEBOOK_BASE_SEARCH_URL = "https://www.facebook.com/search/"
-UNAME_INFORMATION = ["Timeline", "About", "Employment", "Education", "Locations", "Contact Info", 
-                     "Basic Info", "Relationships", "Family", "Biography", "Life Events", "Friends",
-                     "Following", "Photos", "Photos Albums", "Videos", "Reels", "Check-ins", "Visits",
-                     "Recent Check-ins", "Sports", "Music", "Movies", "TV", "Books", "Apps & Games",
-                     "Likes", "Events", "Facts", "Reviews","Reviews Given", "Reviews Written", "Notes"]
+#UNAME_INFORMATION = ["Timeline", "About", "Employment", "Education", "Locations", "Contact Info", 
+#                     "Basic Info", "Relationships", "Family", "Biography", "Life Events", "Friends",
+#                     "Following", "Photos", "Photos Albums", "Videos", "Reels", "Check-ins", "Visits",
+#                     "Recent Check-ins", "Sports", "Music", "Movies", "TV", "Books", "Apps & Games",
+#                     "Likes", "Events", "Facts", "Reviews","Reviews Given", "Reviews Written", "Notes"]
 UNAME_INFORMATION_MAP = {
-    "timeline":"",
-    "about":"about",
-    "employment":"about?section=work",
-    "education":"about?section=education",
-    "locations":"about?section=living",
-    "contact info":"about?section=contact-info",
-    "basic info":"about?section=basic-info",
-    "relationships":"about?section=relationships",
-    "family":"about?section=family",
-    "biography":"about?section=bio",
-    "life events":"about?section=year-overview",
-    "friends":"friends",
-    "following":"following",
-    "photos":"photos",
-    "photos albums":"photos_albums",
-    "videos":"videos",
-    "reels":"reels",
-    "check-ins":"places_visited",
-    "visits":"map",
-    "recent check-ins":"places_recent",
-    "sports":"sports",
-    "music":"music",
-    "movies":"movies",
-    "tv":"tv",
-    "books":"books",
-    "apps & games":"games",
-    "likes":"likes",
-    "events":"events",
-    "facts":"did_you_know",
-    "reviews":"reviews",
-    "reviews given":"reviews_given",
-    "reviews written":"reviews_written",
-    "notes":"notes"
+    "Timeline":"",
+    "About":"about",
+    "Intro":"directory_intro",
+    "Category":"directory_category",
+    "Personal Details":"directory_personal_details",
+    "Work":"directory_work",
+    "Education":"directory_education",
+    "Hobbies":"directory_activites",
+    "Interests":"directory_interests",
+    "Travel":"directory_travel",
+    "Links":"directory_links",
+    "Contact Info":"directory_contact_info",
+    "Privacy/Legal Info":"directory_privacy_and_legal_info",
+    "Names":"directory_names",
+    "Details About You":"about_details",
+    "Following":"following",
+    "Photos":"photos",
+    "Photos Albums":"photos_albums",
+    "Videos":"videos",
+    "Reels":"reels",
+    "Check-ins":"places_visited",
+    "Visits":"map",
+    "Recent Check-ins":"places_recent",
+    "Sports":"sports",
+    "Music":"music",
+    "Movies":"movies",
+    "TV":"tv",
+    "Books":"books",
+    "Apps & Games":"games",
+    "Likes":"likes",
+    "Events":"events",
+    "Facts":"did_you_know",
+    "Reviews":"reviews",
+    "Reviews Given":"reviews_given",
+    "Reviews Written":"reviews_written",
+    "Notes":"notes"
 }
 SEARCH = ["top", "posts", "people", "photos", "videos",
           "marketplace", "pages", "places", "groups",
@@ -131,7 +134,7 @@ class ConstructFbUrl:
         return new_fb_url
     
     def construct_username_url(self, username):
-        uname_information = information.get().lower()
+        uname_information = information.get()
         if not information:
             output = "Select user information to search"
             return output
@@ -267,7 +270,7 @@ def display_ids(event=None):
 
     elif selected_type == "account":
         username_entry.config(state="normal")
-        information.config(state="readonly", values=UNAME_INFORMATION)
+        information.config(state="readonly", values=list(UNAME_INFORMATION_MAP.keys()))
         id_entry.delete(0, tk.END)
         id_entry.config(state="disabled")
         keyword_entry.delete(0, tk.END)
@@ -380,4 +383,6 @@ generate_button.grid(row=4, column=0, columnspan=2, padx=5, pady=20)
 
 
 root.geometry("690x500")
+icon = tk.PhotoImage(file="logo.png")
+root.iconphoto(True, icon)
 root.mainloop()
