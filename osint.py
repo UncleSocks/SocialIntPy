@@ -1,4 +1,5 @@
 import base64
+import json
 import tkinter as tk
 from tkinter import ttk
 
@@ -75,7 +76,141 @@ PEOPLE_ID_TYPES = ["Employer ID", "City ID", "School ID"]
 EVENTS_ID_TYPES = ["Location ID"]
 
 
-def generate_url():
+
+def encode(filter_string):
+    string_bytes = filter_string.encode("ascii")
+    base64_bytes = base64.b64encode(string_bytes)
+    base64_string = base64_bytes.decode("ascii")
+    return base64_string
+
+
+class ConstructFbUrl:
+
+    def __init__(self, selected_type, widgets):
+        self.selected_type = selected_type
+        self.widgets = widgets
+
+    def _capture_misc_fields(self):
+        self.keyword = (quote(self.widgets.keyword_entry.get().lower() if self.widgets.keyword_entry.get() else self.selected_type))
+        self.selected_year = self.widgets.year_selection_combobox.get().lower()
+
+    def _creation_time_json(self):
+        creation_time_args = {
+            "start_year":f"{self.selected_year}",
+            "start_month":f"{self.selected_year}-1",
+            "end_year":f"{self.selected_year}",
+            "end_month":f"{self.selected_year}-12",
+            "start_day":f"{self.selected_year}-1-1",
+            "end_day":f"{self.selected_year}-12-31"
+        }
+        creation_time = {
+            "name":"creation_time",
+            "args":json.dumps(creation_time_args)
+        }
+        return json.dumps(creation_time)
+
+    def _construct_user_id_url(self, user_id=None):
+        if not user_id:
+            output = "Unable to generate URL. Enter a user ID."
+            return output
+        
+        filter_args_dict = {
+                "name":"author",
+                "args":f"{user_id}"
+            }
+        
+        if self.selected_year == "top":
+            raw_filter_dict = {
+                "rp_author":f"{json.dumps(filter_args_dict)}"
+            }
+        else:
+            raw_filter_dict = {
+                "rp_author":f"{json.dumps(filter_args_dict)}",
+                "rp_creation_time":f"{self._creation_time_json()}"
+            }
+
+        raw_filter = json.dumps(raw_filter_dict)
+        encoded_filter = encode(raw_filter)
+        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{self.selected_type}" + f"?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        return new_fb_url
+
+    def _construct_location_id_url(self, location_id=None):
+        if not location_id:
+            output = "Unable to generate URL. Enter a location ID."
+            return output
+        
+        if self.selected_type == "events":
+            filter_args_dict = {
+                "name":"filter_events_location",
+                "args":f"{location_id}"
+            }
+            raw_filter_dict = {
+                "rp_events_locations":f"{json.dumps(filter_args_dict)}"
+            }
+
+        else:
+            filter_args_dict = {
+                "name":"location",
+                "args":f"{location_id}"
+            }
+
+            if self.selected_type == "posts" and self.selected_year == "top":
+                raw_filter_dict = {
+                    "rp_location":f"{json.dumps(filter_args_dict)}"
+                }
+            elif self.selected_type == "posts":
+                raw_filter_dict = {
+                    "rp_location":f"{json.dumps(filter_args_dict)}",
+                    "rp_creation_time":f"{self._creation_time_json()}"
+                }
+            elif self.selected_type != "posts" and self.selected_year == "top":
+                raw_filter_dict = {
+                    "rp_author":f"{json.dumps(filter_args_dict)}"
+                }
+            else:
+                raw_filter_dict = {
+                    "rp_author":f"{json.dumps(filter_args_dict)}",
+                    "rp_creation_time":f"{self._creation_time_json()}"
+                }
+
+        raw_filter = json.dumps(raw_filter_dict)
+        encoded_filter = encode(raw_filter)
+        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{self.selected_type}" + f"?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        return new_fb_url
+
+        
+
+    def construct_fb_url(self):
+        if self.selected_type == "posts" or self.selected_type == "photos" \
+            or self.selected_type == "videos" or self.selected_type == "events" \
+                or self.selected_type == "people":
+            selected_id = self.widgets.id_type_combobox.get().lower()
+            
+            id_value = self.widgets.id_entry.get().lower()
+            if selected_id == "user id":
+                self._capture_misc_fields()
+                new_fb_url = self._construct_user_id_url(id_value)
+                return new_fb_url
+            elif selected_id == "location id":
+                self._capture_misc_fields()
+                new_fb_url = self._construct_location_id_url(id_value)
+                return new_fb_url
+            elif selected_id == "employer id" or  selected_id == "city id" \
+                or selected_id == "school id":
+                print(selected_id)
+                
+        return
+    
+
+def generate_url(widgets):
+    selected_type = widgets.search_type_combobox.get().lower()
+    if selected_type:
+        fb_url = ConstructFbUrl(selected_type, widgets).construct_fb_url()
+        pyperclip.copy(fb_url)
+        widgets.output_label.config(state="normal")
+        widgets.output_label.delete("1.0", "end")
+        widgets.output_label.insert(tk.END, fb_url)
+        widgets.output_label.config(state="disabled")
     return
 
 
@@ -160,8 +295,6 @@ class WidgetLogicController:
             self._setup_search_widgets()
         else:
             self.widget_disable.disable_id_type_combobox()
-            
-
     
     
     def id_type_logic(self, event=None):
@@ -277,7 +410,7 @@ class GenerateWidgets:
 
     def generate_button(self):
         self.generate_button = tk.Button(self.root, text=WIDGET_LABEL_MAP["generate_button"],
-                                    command=generate_url, width=20)
+                                    command=lambda: generate_url(self), width=20)
         self.generate_button.grid(row=4, column=0, columnspan=2, padx=5, pady=20)
 
     def output_widgets(self):
