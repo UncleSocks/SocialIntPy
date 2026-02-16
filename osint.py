@@ -28,7 +28,7 @@ YEAR_SELECTION = ["Top", "2025", "2024", "2023", "2022", "2021",
                   "2020", "2019", "2018", "2017", "2016", "2015", 
                   "2014", "2013", "2012", "2011", "2010"]
 
-ACCOUNT_INFORMATION_MAP = {
+ACCOUNT_SECTION_MAP = {
     "Timeline":"",
     "About":"about",
     "Intro":"directory_intro",
@@ -75,6 +75,12 @@ POSTS_PHOTOS_VIDEOS_ID_TYPES = ["User ID", "Location ID"]
 PEOPLE_ID_TYPES = ["Employer ID", "City ID", "School ID"]
 EVENTS_ID_TYPES = ["Location ID"]
 
+PEOPLE_SEARCH_ID_MAP = {
+    "employer id":{"filter":"employer", "name":"users_employer"},
+    "city id":{"filter":"city", "name":"users_location"},
+    "school id":{"filter":"school", "name":"users_school"}
+}
+
 
 
 def encode(filter_string):
@@ -116,17 +122,17 @@ class ConstructFbUrl:
         
         filter_args_dict = {
                 "name":"author",
-                "args":f"{user_id}"
+                "args":user_id
             }
         
         if self.selected_year == "top":
             raw_filter_dict = {
-                "rp_author":f"{json.dumps(filter_args_dict)}"
+                "rp_author":json.dumps(filter_args_dict)
             }
         else:
             raw_filter_dict = {
-                "rp_author":f"{json.dumps(filter_args_dict)}",
-                "rp_creation_time":f"{self._creation_time_json()}"
+                "rp_author":json.dumps(filter_args_dict),
+                "rp_creation_time":self._creation_time_json()
             }
 
         raw_filter = json.dumps(raw_filter_dict)
@@ -142,43 +148,75 @@ class ConstructFbUrl:
         if self.selected_type == "events":
             filter_args_dict = {
                 "name":"filter_events_location",
-                "args":f"{location_id}"
+                "args":location_id
             }
             raw_filter_dict = {
-                "rp_events_locations":f"{json.dumps(filter_args_dict)}"
+                "rp_events_locations":json.dumps(filter_args_dict)
             }
 
         else:
             filter_args_dict = {
                 "name":"location",
-                "args":f"{location_id}"
+                "args":location_id
             }
 
             if self.selected_type == "posts" and self.selected_year == "top":
                 raw_filter_dict = {
-                    "rp_location":f"{json.dumps(filter_args_dict)}"
+                    "rp_location":json.dumps(filter_args_dict)
                 }
             elif self.selected_type == "posts":
                 raw_filter_dict = {
-                    "rp_location":f"{json.dumps(filter_args_dict)}",
-                    "rp_creation_time":f"{self._creation_time_json()}"
+                    "rp_location":json.dumps(filter_args_dict),
+                    "rp_creation_time":self._creation_time_json()
                 }
             elif self.selected_type != "posts" and self.selected_year == "top":
                 raw_filter_dict = {
-                    "rp_author":f"{json.dumps(filter_args_dict)}"
+                    "rp_author":json.dumps(filter_args_dict)
                 }
             else:
                 raw_filter_dict = {
-                    "rp_author":f"{json.dumps(filter_args_dict)}",
-                    "rp_creation_time":f"{self._creation_time_json()}"
+                    "rp_author":json.dumps(filter_args_dict),
+                    "rp_creation_time":self._creation_time_json()
                 }
 
         raw_filter = json.dumps(raw_filter_dict)
         encoded_filter = encode(raw_filter)
         new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{self.selected_type}" + f"?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
         return new_fb_url
-
+    
+    def _construct_people_url(self, id_type, id=None):
+        filter_args_dict = {
+            "name":PEOPLE_SEARCH_ID_MAP[id_type]["name"],
+            "args":id
+        }
+        raw_filter_dict = {
+            PEOPLE_SEARCH_ID_MAP[id_type]["filter"]:json.dumps(filter_args_dict)
+        }
+        raw_filter = json.dumps(raw_filter_dict)
+        encoded_filter = encode(raw_filter)
+        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"people/?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        return new_fb_url
+    
+    def _construct_account_url(self, account, section=None):
+        if not section:
+            output = "Unable to generate URL. Select account section."
+            return output
+        else:
+            new_fb_url = FACEBOOK_BASE_URL + f"{account}/" + f"{ACCOUNT_SECTION_MAP[section]}"
+            return new_fb_url
         
+    def _construct_places_url(self):
+        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"places/?q={self.keyword}" 
+        return new_fb_url
+    
+    def _construct_search_url(self, section=None):
+        if not section:
+            output = "Unable to generate URL. Select search section."
+            return output
+        else:
+            new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{section}" + f"/?q={self.keyword}" 
+            return new_fb_url
+
 
     def construct_fb_url(self):
         if self.selected_type == "posts" or self.selected_type == "photos" \
@@ -197,9 +235,29 @@ class ConstructFbUrl:
                 return new_fb_url
             elif selected_id == "employer id" or  selected_id == "city id" \
                 or selected_id == "school id":
-                print(selected_id)
-                
-        return
+                self._capture_misc_fields()
+                new_fb_url = self._construct_people_url(selected_id, id_value)
+                return new_fb_url
+
+        elif self.selected_type == "account":
+            account = self.widgets.account_entry.get().lower()
+            section = self.widgets.section_combobox.get()
+            new_fb_url = self._construct_account_url(account, section)
+            return new_fb_url
+        
+        elif self.selected_type == "places":
+            self._capture_misc_fields()
+            new_fb_url = self._construct_places_url()
+            return new_fb_url
+        
+        elif self.selected_type == "search":
+            self._capture_misc_fields()
+            section = self.widgets.section_combobox.get().lower()
+            new_fb_url = self._construct_search_url(section)
+            return new_fb_url
+        
+        else:
+            return "Unknown error. Try selecting an ID type."
     
 
 def generate_url(widgets):
@@ -259,7 +317,7 @@ class WidgetLogicController:
 
     def _setup_account_widgets(self):
         self.widgets.account_entry.config(state="normal")
-        self.widgets.section_combobox.config(state="readonly", values=list(ACCOUNT_INFORMATION_MAP.keys()))
+        self.widgets.section_combobox.config(state="readonly", values=list(ACCOUNT_SECTION_MAP.keys()))
 
         self.widget_disable.disable_id_entry()
         self.widget_disable.disable_keyword_entry()
@@ -303,7 +361,7 @@ class WidgetLogicController:
             self.widgets.id_entry.config(state="normal")
 
         elif self.selected_id == "employer id" or self.selected_id == "city id" \
-            or self.selected_id == "location id":
+            or self.selected_id == "school id":
             self.widgets.id_entry.config(state="normal")
         else:
             self.widgets.id_entry.config(state="disabled")
@@ -337,7 +395,6 @@ class DisableWidgets:
     def disable_section_combobox(self):
         self.widgets.section_combobox.set("")
         self.widgets.section_combobox.config(state="disabled")
-
 
 
 class GenerateWidgets:
