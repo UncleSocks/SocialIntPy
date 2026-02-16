@@ -20,7 +20,6 @@ WIDGET_LABEL_MAP = {
 }
 
 FACEBOOK_BASE_URL = "https://www.facebook.com/"
-FACEBOOK_BASE_SEARCH_URL = "https://www.facebook.com/search/"
 SEARCH_TYPE_SELECTION = ["Posts", "Photos", "Videos", "People", "Places", 
                          "Events", "Account", "Search"]
 
@@ -100,6 +99,11 @@ class ConstructFbUrl:
         self.keyword = (quote(self.widgets.keyword_entry.get().lower() if self.widgets.keyword_entry.get() else self.selected_type))
         self.selected_year = self.widgets.year_selection_combobox.get().lower()
 
+    def _build_filtered_url(self, url_path, raw_filter_dict):
+        raw_filter = json.dumps(raw_filter_dict)
+        encoded_filter = encode(raw_filter)
+        return f"{FACEBOOK_BASE_URL}{url_path}{encoded_filter}"
+
     def _creation_time_json(self):
         creation_time_args = {
             "start_year":f"{self.selected_year}",
@@ -135,9 +139,8 @@ class ConstructFbUrl:
                 "rp_creation_time":self._creation_time_json()
             }
 
-        raw_filter = json.dumps(raw_filter_dict)
-        encoded_filter = encode(raw_filter)
-        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{self.selected_type}" + f"?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        url_path = f"search/{self.selected_type}?q={self.keyword}&epa=FILTERS&filters="
+        new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
         return new_fb_url
 
     def _construct_location_id_url(self, location_id=None):
@@ -179,9 +182,8 @@ class ConstructFbUrl:
                     "rp_creation_time":self._creation_time_json()
                 }
 
-        raw_filter = json.dumps(raw_filter_dict)
-        encoded_filter = encode(raw_filter)
-        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{self.selected_type}" + f"?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        url_path = f"search/{self.selected_type}?q={self.keyword}&epa=FILTERS&filters="
+        new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
         return new_fb_url
     
     def _construct_people_url(self, id_type, id=None):
@@ -192,9 +194,8 @@ class ConstructFbUrl:
         raw_filter_dict = {
             PEOPLE_SEARCH_ID_MAP[id_type]["filter"]:json.dumps(filter_args_dict)
         }
-        raw_filter = json.dumps(raw_filter_dict)
-        encoded_filter = encode(raw_filter)
-        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"people/?q={self.keyword}" + f"&epa=FILTERS&filters={encoded_filter}"
+        url_path = f"search/people/?q={self.keyword}&epa=FILTERS&filters="
+        new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
         return new_fb_url
     
     def _construct_account_url(self, account, section=None):
@@ -202,11 +203,11 @@ class ConstructFbUrl:
             output = "Unable to generate URL. Select account section."
             return output
         else:
-            new_fb_url = FACEBOOK_BASE_URL + f"{account}/" + f"{ACCOUNT_SECTION_MAP[section]}"
+            new_fb_url = f"{FACEBOOK_BASE_URL}{account}/{ACCOUNT_SECTION_MAP[section]}"
             return new_fb_url
         
     def _construct_places_url(self):
-        new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"places/?q={self.keyword}" 
+        new_fb_url = f"{FACEBOOK_BASE_URL}search/places/?q={self.keyword}"
         return new_fb_url
     
     def _construct_search_url(self, section=None):
@@ -214,7 +215,7 @@ class ConstructFbUrl:
             output = "Unable to generate URL. Select search section."
             return output
         else:
-            new_fb_url = FACEBOOK_BASE_SEARCH_URL + f"{section}" + f"/?q={self.keyword}" 
+            new_fb_url = f"{FACEBOOK_BASE_URL}search/{section}/?q={self.keyword}" 
             return new_fb_url
 
 
@@ -316,6 +317,7 @@ class WidgetLogicController:
         self.widget_disable.disable_section_combobox()
 
     def _setup_account_widgets(self):
+        self.widget_disable.disable_section_combobox()
         self.widgets.account_entry.config(state="normal")
         self.widgets.section_combobox.config(state="readonly", values=list(ACCOUNT_SECTION_MAP.keys()))
 
@@ -324,6 +326,7 @@ class WidgetLogicController:
         self.widget_disable.disable_year_selection()
 
     def _setup_search_widgets(self):
+        self.widget_disable.disable_section_combobox()
         self.widgets.keyword_entry.config(state="normal")
         self.widgets.section_combobox.config(state="readonly", values=SEARCH_QUERY_SELECTION)
 
