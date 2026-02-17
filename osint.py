@@ -66,9 +66,9 @@ ACCOUNT_SECTION_MAP = {
     "Notes":"notes"
 }
 
-SEARCH_QUERY_SELECTION = ["top", "posts", "people", "photos", "videos", 
-                          "marketplace", "pages", "places", "groups",
-                          "apps", "events", "links", "watch"]
+SEARCH_QUERY_SELECTION = ["Top", "Posts", "People", "Photos", "Videos", 
+                          "Marketplace", "Pages", "Places", "Groups",
+                          "Apps", "Events", "Links", "Watch"]
 
 POSTS_PHOTOS_VIDEOS_ID_TYPES = ["User ID", "Location ID"]
 PEOPLE_ID_TYPES = ["Employer ID", "City ID", "School ID"]
@@ -217,7 +217,7 @@ class ConstructFbUrl:
             output = "Unable to generate URL. Select search section."
             return output
         else:
-            new_fb_url = f"{FACEBOOK_BASE_URL}search/{section}/?q={self.keyword}" 
+            new_fb_url = f"{FACEBOOK_BASE_URL}search/{section.lower()}/?q={self.keyword}" 
             return new_fb_url
 
 
