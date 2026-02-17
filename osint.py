@@ -149,48 +149,38 @@ class ConstructFbUrl:
         if not location_id:
             output = "Unable to generate URL. Enter a location ID."
             return output
-        
-        if self.selected_type == "events":
-            filter_args_dict = {
-                "name":"filter_events_location",
-                "args":location_id
-            }
+
+        filter_args_dict = {
+            "name":"location",
+            "args":location_id
+        }
+
+        if self.selected_type == "posts" and self.selected_year == "top":
             raw_filter_dict = {
-                "rp_events_locations":json.dumps(filter_args_dict)
+                "rp_location":json.dumps(filter_args_dict)
             }
-
+        elif self.selected_type == "posts":
+            raw_filter_dict = {
+                "rp_location":json.dumps(filter_args_dict),
+                "rp_creation_time":self._creation_time_json()
+            }
+        elif self.selected_year == "top":
+            raw_filter_dict = {
+                "rp_author":json.dumps(filter_args_dict)
+            }
         else:
-            filter_args_dict = {
-                "name":"location",
-                "args":location_id
+            raw_filter_dict = {
+                "rp_author":json.dumps(filter_args_dict),
+                "rp_creation_time":self._creation_time_json()
             }
-
-            if self.selected_type == "posts" and self.selected_year == "top":
-                raw_filter_dict = {
-                    "rp_location":json.dumps(filter_args_dict)
-                }
-            elif self.selected_type == "posts":
-                raw_filter_dict = {
-                    "rp_location":json.dumps(filter_args_dict),
-                    "rp_creation_time":self._creation_time_json()
-                }
-            elif self.selected_type != "posts" and self.selected_year == "top":
-                raw_filter_dict = {
-                    "rp_author":json.dumps(filter_args_dict)
-                }
-            else:
-                raw_filter_dict = {
-                    "rp_author":json.dumps(filter_args_dict),
-                    "rp_creation_time":self._creation_time_json()
-                }
 
         url_path = f"search/{self.selected_type}?q={self.keyword}&epa=FILTERS&filters="
         new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
         return new_fb_url
     
     def _construct_people_url(self, id_type, id=None):
-        if not id:
-            output = "Unable to generate URL. Enter an ID value."
+        if not id or not self.keyword:
+            output = "Unable to generate URL. Enter an ID and a keyword (account name)."
             return output
         
         filter_args_dict = {
@@ -201,6 +191,22 @@ class ConstructFbUrl:
             PEOPLE_SEARCH_ID_MAP[id_type]["filter"]:json.dumps(filter_args_dict)
         }
         url_path = f"search/people/?q={self.keyword}&epa=FILTERS&filters="
+        new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
+        return new_fb_url
+    
+    def _construct_events_url(self, location_id=None):
+        if not location_id or not self.keyword:
+            output = "Unable to generate URL. Enter a location ID and keyword."
+            return output
+        
+        filter_args_dict = {
+            "name":"filter_events_location",
+            "args":location_id
+        }
+        raw_filter_dict = {
+            "rp_events_locations":json.dumps(filter_args_dict)
+        }
+        url_path = f"search/{self.selected_type}?q={self.keyword}&epa=FILTERS&filters="
         new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
         return new_fb_url
     
@@ -228,11 +234,9 @@ class ConstructFbUrl:
             new_fb_url = f"{FACEBOOK_BASE_URL}search/{section.lower()}/?q={self.keyword}" 
             return new_fb_url
 
-
     def construct_fb_url(self):
         if self.selected_type == "posts" or self.selected_type == "photos" \
-            or self.selected_type == "videos" or self.selected_type == "events" \
-                or self.selected_type == "people":
+            or self.selected_type == "videos":
             self.keyword = (quote(self.keyword) if self.keyword else self.selected_type)
             if self.selected_id == "user id":
                 new_fb_url = self._construct_user_id_url(self.id_value)
@@ -240,10 +244,14 @@ class ConstructFbUrl:
             elif self.selected_id == "location id":
                 new_fb_url = self._construct_location_id_url(self.id_value)
                 return new_fb_url
-            elif self.selected_id == "employer id" or  self.selected_id == "city id" \
-                or self.selected_id == "school id":
-                new_fb_url = self._construct_people_url(self.selected_id, self.id_value)
-                return new_fb_url
+            
+        elif self.selected_type == "people":
+            new_fb_url = self._construct_people_url(self.selected_id, self.id_value)
+            return new_fb_url
+            
+        elif self.selected_type == "events":
+            new_fb_url = self._construct_events_url(self.id_value)
+            return new_fb_url
 
         elif self.selected_type == "account":
             new_fb_url = self._construct_account_url(self.account, self.section)
