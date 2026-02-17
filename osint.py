@@ -204,9 +204,9 @@ class ConstructFbUrl:
         new_fb_url = self._build_filtered_url(url_path, raw_filter_dict)
         return new_fb_url
     
-    def _construct_account_url(self, account, section=None):
-        if not section:
-            output = "Unable to generate URL. Select account section."
+    def _construct_account_url(self, account=None, section=None):
+        if not section or not account:
+            output = "Unable to generate URL. Enter account name and select a section."
             return output
         else:
             new_fb_url = f"{FACEBOOK_BASE_URL}{account}/{ACCOUNT_SECTION_MAP[section]}"
