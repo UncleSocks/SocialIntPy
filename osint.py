@@ -219,26 +219,27 @@ class ConstructFbUrl:
         return f"{FACEBOOK_BASE_URL}search/{self.section.lower()}/?q={self.keyword}" 
 
     def construct_fb_url(self):
-        if self.selected_type == "posts" or self.selected_type == "photos" \
-            or self.selected_type == "videos":
+
+        construct_url_handlers = {
+            "people":self._construct_people_url,
+            "events":self._construct_events_url,
+            "account":self._construct_account_url,
+            "places":self._construct_places_url,
+            "search":self._construct_search_url
+        }
+        
+        if self.selected_type in {"posts", "photos", "videos"}:
             self.keyword = (quote(self.keyword) if self.keyword else self.selected_type)
             if self.selected_id == "user id":
                 return self._construct_user_id_url()
-            elif self.selected_id == "location id":
+            else:
                 return self._construct_location_id_url()
-            
-        elif self.selected_type == "people":
-            return self._construct_people_url() 
-        elif self.selected_type == "events":
-            return self._construct_events_url()
-        elif self.selected_type == "account":
-            return self._construct_account_url()
-        elif self.selected_type == "places":
-            return self._construct_places_url()
-        elif self.selected_type == "search":
-            return self._construct_search_url()
-        else:
-            return "Unknown error. Try selecting an ID type."
+
+        handler = construct_url_handlers.get(self.selected_type)
+        if handler:
+            return handler()
+
+        return "Unknown error. Try selecting an ID type."
     
 
 def generate_url(widgets):
