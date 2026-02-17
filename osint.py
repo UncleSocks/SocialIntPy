@@ -94,11 +94,11 @@ class ConstructFbUrl:
     def __init__(self, selected_type, selected_id=None, id_value=None, 
                  keyword=None, selected_year=None, account=None, section=None):
         self.selected_type = selected_type
-        self.selected_id = selected_id.lower()
-        self.id_value = id_value.lower()
-        self.keyword = quote(keyword if keyword else self.selected_type)
-        self.selected_year = selected_year.lower()
-        self.account = account.lower()
+        self.selected_id = selected_id.lower() if selected_id else None
+        self.id_value = id_value.lower() if id_value else None
+        self.keyword = quote(keyword.lower() if keyword else self.selected_type)
+        self.selected_year = selected_year.lower() if selected_year else None
+        self.account = account.lower() if account else None
         self.section = section
 
     def _build_filtered_url(self, url_path, raw_filter_dict):
@@ -189,6 +189,10 @@ class ConstructFbUrl:
         return new_fb_url
     
     def _construct_people_url(self, id_type, id=None):
+        if not id:
+            output = "Unable to generate URL. Enter an ID value."
+            return output
+        
         filter_args_dict = {
             "name":PEOPLE_SEARCH_ID_MAP[id_type]["name"],
             "args":id
@@ -302,8 +306,9 @@ class WidgetLogicController:
         self.widgets.section_combobox.config(state="disabled")
 
     def _setup_posts_photos_videos_widgets(self):
-        self._disable_id_entry()
+        self.widgets.id_type_combobox.set(POSTS_PHOTOS_VIDEOS_ID_TYPES[0])
         self.widgets.id_type_combobox.config(value=POSTS_PHOTOS_VIDEOS_ID_TYPES, state="readonly")
+        self.widgets.id_entry.config(state="normal")
         self.widgets.year_selection_combobox.config(value=YEAR_SELECTION, state="readonly")
         self.widgets.year_selection_combobox.set("Top")
         self.widgets.keyword_entry.config(state="normal")
@@ -313,7 +318,9 @@ class WidgetLogicController:
 
 
     def _setup_people_widgets(self):
+        self.widgets.id_type_combobox.set(PEOPLE_ID_TYPES[0])
         self.widgets.id_type_combobox.config(values=PEOPLE_ID_TYPES, state="readonly")
+        self.widgets.id_entry.config(state="normal")
         self.widgets.keyword_entry.config(state="normal")
 
         self._disable_year_selection()
@@ -379,18 +386,6 @@ class WidgetLogicController:
             self._setup_search_widgets()
         else:
             self._disable_id_type_combobox()
-    
-    
-    def id_type_logic(self, event=None):
-        self.selected_id = self.widgets.id_type_combobox.get().lower()
-        if self.selected_id == "user id" or self.selected_id == "location id":
-            self.widgets.id_entry.config(state="normal")
-
-        elif self.selected_id == "employer id" or self.selected_id == "city id" \
-            or self.selected_id == "school id":
-            self.widgets.id_entry.config(state="normal")
-        else:
-            self.widgets.id_entry.config(state="disabled")
 
 
 class GenerateWidgets:
@@ -429,7 +424,6 @@ class GenerateWidgets:
         id_type_label.grid(row=1, column=0, padx=10, pady=15, sticky="E")
         self.id_type_combobox = ttk.Combobox(self.root, state="disabled")
         self.id_type_combobox.grid(row=1, column=1, sticky="W")
-        self.id_type_combobox.bind("<<ComboboxSelected>>", func=self.widget_controller.id_type_logic)
 
     def id_entry_widgets(self):
         id_entry_label = tk.Label(self.root, text=WIDGET_LABEL_MAP["id_value"])
