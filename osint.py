@@ -276,35 +276,58 @@ def generate_url(widgets):
 class WidgetLogicController:
     def __init__ (self, widgets):
         self.widgets = widgets
-        self.widget_disable = DisableWidgets(self.widgets)
+
+    def _disable_id_type_combobox(self):
+        self.widgets.id_type_combobox.set("")
+        self.widgets.id_type_combobox.config(state="disabled")
+
+    def _disable_id_entry(self):
+        self.widgets.id_entry.delete(first=0, last="end")
+        self.widgets.id_entry.config(state="disabled")
+
+    def _disable_keyword_entry(self):
+        self.widgets.keyword_entry.delete(first=0, last="end")
+        self.widgets.keyword_entry.config(state="disabled")
+
+    def _disable_year_selection(self):
+        self.widgets.year_selection_combobox.set("")
+        self.widgets.year_selection_combobox.config(state="disabled")
+
+    def _disable_account_entry(self):
+        self.widgets.account_entry.delete(first=0, last="end")
+        self.widgets.account_entry.config(state="disabled")
+
+    def _disable_section_combobox(self):
+        self.widgets.section_combobox.set("")
+        self.widgets.section_combobox.config(state="disabled")
 
     def _setup_posts_photos_videos_widgets(self):
-        self.widget_disable.disable_id_entry()
+        self._disable_id_entry()
         self.widgets.id_type_combobox.config(value=POSTS_PHOTOS_VIDEOS_ID_TYPES, state="readonly")
         self.widgets.year_selection_combobox.config(value=YEAR_SELECTION, state="readonly")
         self.widgets.year_selection_combobox.set("Top")
         self.widgets.keyword_entry.config(state="normal")
 
-        self.widget_disable.disable_account_entry()
-        self.widget_disable.disable_section_combobox()
+        self._disable_account_entry()
+        self._disable_section_combobox()
 
 
     def _setup_people_widgets(self):
         self.widgets.id_type_combobox.config(values=PEOPLE_ID_TYPES, state="readonly")
         self.widgets.keyword_entry.config(state="normal")
 
-        self.widget_disable.disable_year_selection()
-        self.widget_disable.disable_account_entry()
-        self.widget_disable.disable_section_combobox()
+        self._disable_year_selection()
+        self._disable_account_entry()
+        self._disable_section_combobox()
 
     def _setup_places_widgets(self):
         self.widgets.keyword_entry.config(state="normal")
 
-        self.widget_disable.disable_id_type_combobox()
-        self.widget_disable.disable_id_entry()
-        self.widget_disable.disable_year_selection()
-        self.widget_disable.disable_account_entry()
-        self.widget_disable.disable_section_combobox()
+        self._disable_id_type_combobox()
+        self._disable_id_entry()
+        self._disable_year_selection()
+        self._disable_account_entry()
+        self._disable_section_combobox()
 
     def _setup_events_widgets(self):
         self.widgets.id_type_combobox.config(values=EVENTS_ID_TYPES, state="readonly")
@@ -312,28 +335,28 @@ class WidgetLogicController:
         self.widgets.id_entry.config(state="normal")
         self.widgets.keyword_entry.config(state="normal")
 
-        self.widget_disable.disable_year_selection()
-        self.widget_disable.disable_account_entry()
-        self.widget_disable.disable_section_combobox()
+        self._disable_year_selection()
+        self._disable_account_entry()
+        self._disable_section_combobox()
 
     def _setup_account_widgets(self):
-        self.widget_disable.disable_section_combobox()
+        self._disable_section_combobox()
         self.widgets.account_entry.config(state="normal")
         self.widgets.section_combobox.config(state="readonly", values=list(ACCOUNT_SECTION_MAP.keys()))
 
-        self.widget_disable.disable_id_entry()
-        self.widget_disable.disable_keyword_entry()
-        self.widget_disable.disable_year_selection()
+        self._disable_id_entry()
+        self._disable_keyword_entry()
+        self._disable_year_selection()
 
     def _setup_search_widgets(self):
-        self.widget_disable.disable_section_combobox()
+        self._disable_section_combobox()
         self.widgets.keyword_entry.config(state="normal")
         self.widgets.section_combobox.config(state="readonly", values=SEARCH_QUERY_SELECTION)
 
-        self.widget_disable.disable_id_type_combobox()
-        self.widget_disable.disable_id_entry()
-        self.widget_disable.disable_year_selection()
-        self.widget_disable.disable_account_entry()
+        self._disable_id_type_combobox()
+        self._disable_id_entry()
+        self._disable_year_selection()
+        self._disable_account_entry()
 
 
     def search_type_logic(self, event=None):
@@ -355,7 +378,7 @@ class WidgetLogicController:
         elif self.selected_type == "search":
             self._setup_search_widgets()
         else:
-            self.widget_disable.disable_id_type_combobox()
+            self._disable_id_type_combobox()
     
     
     def id_type_logic(self, event=None):
@@ -368,36 +391,6 @@ class WidgetLogicController:
             self.widgets.id_entry.config(state="normal")
         else:
             self.widgets.id_entry.config(state="disabled")
-
-
-class DisableWidgets:
-
-    def __init__(self, widgets):
-        self.widgets = widgets
-
-    def disable_id_type_combobox(self):
-        self.widgets.id_type_combobox.set("")
-        self.widgets.id_type_combobox.config(state="disabled")
-
-    def disable_id_entry(self):
-        self.widgets.id_entry.delete(first=0, last="end")
-        self.widgets.id_entry.config(state="disabled")
-
-    def disable_keyword_entry(self):
-        self.widgets.keyword_entry.delete(first=0, last="end")
-        self.widgets.keyword_entry.config(state="disabled")
-
-    def disable_year_selection(self):
-        self.widgets.year_selection_combobox.set("")
-        self.widgets.year_selection_combobox.config(state="disabled")
-
-    def disable_account_entry(self):
-        self.widgets.account_entry.delete(first=0, last="end")
-        self.widgets.account_entry.config(state="disabled")
-
-    def disable_section_combobox(self):
-        self.widgets.section_combobox.set("")
-        self.widgets.section_combobox.config(state="disabled")
 
 
 class GenerateWidgets:
