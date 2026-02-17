@@ -219,7 +219,6 @@ class ConstructFbUrl:
         return f"{FACEBOOK_BASE_URL}search/{self.section.lower()}/?q={self.keyword}" 
 
     def construct_fb_url(self):
-
         construct_url_handlers = {
             "people":self._construct_people_url,
             "events":self._construct_events_url,
