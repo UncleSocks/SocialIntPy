@@ -307,9 +307,9 @@ class WidgetLogicController:
 
     def _setup_posts_photos_videos_widgets(self):
         self.widgets.id_type_combobox.set(POSTS_PHOTOS_VIDEOS_ID_TYPES[0])
-        self.widgets.id_type_combobox.config(value=POSTS_PHOTOS_VIDEOS_ID_TYPES, state="readonly")
+        self.widgets.id_type_combobox.config(values=POSTS_PHOTOS_VIDEOS_ID_TYPES, state="readonly")
         self.widgets.id_entry.config(state="normal")
-        self.widgets.year_selection_combobox.config(value=YEAR_SELECTION, state="readonly")
+        self.widgets.year_selection_combobox.config(values=YEAR_SELECTION, state="readonly")
         self.widgets.year_selection_combobox.set("Top")
         self.widgets.keyword_entry.config(state="normal")
 
