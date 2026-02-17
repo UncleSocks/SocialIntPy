@@ -96,7 +96,7 @@ class ConstructFbUrl:
         self.selected_type = selected_type
         self.selected_id = selected_id.lower() if selected_id else None
         self.id_value = id_value.lower() if id_value else None
-        self.keyword = quote(keyword.lower() if keyword else self.selected_type)
+        self.keyword = keyword
         self.selected_year = selected_year.lower() if selected_year else None
         self.account = account.lower() if account else None
         self.section = section
@@ -213,12 +213,16 @@ class ConstructFbUrl:
             return new_fb_url
         
     def _construct_places_url(self):
-        new_fb_url = f"{FACEBOOK_BASE_URL}search/places/?q={self.keyword}"
-        return new_fb_url
+        if not self.keyword:
+            output = "Unable to generate URL. Enter a keyword."
+            return output
+        else:
+            new_fb_url = f"{FACEBOOK_BASE_URL}search/places/?q={self.keyword}"
+            return new_fb_url
     
     def _construct_search_url(self, section=None):
-        if not section:
-            output = "Unable to generate URL. Select search section."
+        if not self.keyword or not section:
+            output = "Unable to generate URL. Enter a keyword and select search section."
             return output
         else:
             new_fb_url = f"{FACEBOOK_BASE_URL}search/{section.lower()}/?q={self.keyword}" 
@@ -229,7 +233,7 @@ class ConstructFbUrl:
         if self.selected_type == "posts" or self.selected_type == "photos" \
             or self.selected_type == "videos" or self.selected_type == "events" \
                 or self.selected_type == "people":
-
+            self.keyword = (quote(self.keyword) if self.keyword else self.selected_type)
             if self.selected_id == "user id":
                 new_fb_url = self._construct_user_id_url(self.id_value)
                 return new_fb_url
