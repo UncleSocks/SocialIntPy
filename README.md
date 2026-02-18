@@ -1,4 +1,4 @@
-# SMIF: Social Media Intelligence Filter-inator
+# PySMST: Python Social Media Search Tool
 
 *Still under development.
 
