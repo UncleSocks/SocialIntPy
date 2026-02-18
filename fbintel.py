@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 WINDOW_TITLE = "FBIntelPy: Python Facebook Intelligence Search Tool"
 WINDOW_DIMENSION = "690x500"
-WINDOW_ICON = "logo.png"
+WINDOW_ICON = "./assets/logo.png"
 
 WIDGET_LABEL_MAP = {
     "search_type":"Search Type:",
