@@ -1,3 +1,5 @@
+import os
+import sys
 import base64
 import json
 import tkinter as tk
@@ -10,7 +12,7 @@ from urllib.parse import quote
 
 WINDOW_TITLE = "FBIntelPy: Python Facebook Intelligence Search Tool"
 WINDOW_DIMENSION = "690x500"
-WINDOW_ICON = "./assets/logo.png"
+WINDOW_ICON_PATH = "assets/logo.png"
 
 WIDGET_LABEL_MAP = {
     "search_type":"Search Type:",
@@ -84,6 +86,13 @@ PEOPLE_SEARCH_ID_MAP = {
     "school id":{"filter":"school", "name":"users_school"}
 }
 
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 def encode(filter_string):
@@ -372,7 +381,8 @@ class GenerateWidgets:
     def _root_setup(self):
         self.root.title(WINDOW_TITLE)
         self.root.geometry(WINDOW_DIMENSION)
-        window_icon = tk.PhotoImage(file=WINDOW_ICON)
+        window_icon_path = resource_path(WINDOW_ICON_PATH)
+        window_icon = tk.PhotoImage(file=window_icon_path)
         self.root.iconphoto(True, window_icon)
 
     def display_widgets(self):
