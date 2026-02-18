@@ -8,7 +8,7 @@ from urllib.parse import quote
 
 
 
-WINDOW_TITLE = "SocialIntPy: Python Social Media Intelligence Search Tool"
+WINDOW_TITLE = "FBIntelPy: Python Facebook Intelligence Search Tool"
 WINDOW_DIMENSION = "690x500"
 WINDOW_ICON = "logo.png"
 
