@@ -111,7 +111,7 @@ class ConstructFbUrl:
         self.id_value = id_value.lower() if id_value else None
         self.keyword = (quote(keyword) if keyword else None)
         self.selected_year = selected_year.lower() if selected_year else None
-        self.account = account.lower() if account else None
+        self.account = quote(account.lower()) if account else None
         self.section = section
 
     def _build_filtered_url(self, url_path, raw_filter_dict):
