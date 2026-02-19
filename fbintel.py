@@ -109,7 +109,7 @@ class ConstructFbUrl:
         self.selected_type = selected_type
         self.selected_id = selected_id.lower() if selected_id else None
         self.id_value = id_value.lower() if id_value else None
-        self.keyword = keyword
+        self.keyword = (quote(keyword) if keyword else None)
         self.selected_year = selected_year.lower() if selected_year else None
         self.account = account.lower() if account else None
         self.section = section
@@ -241,7 +241,7 @@ class ConstructFbUrl:
         }
         
         if self.selected_type in {"posts", "photos", "videos"}:
-            self.keyword = (quote(self.keyword) if self.keyword else self.selected_type)
+            self.keyword = self.keyword if self.keyword else self.selected_type
             if self.selected_id == "user id":
                 return self._construct_user_id_url()
             else:
