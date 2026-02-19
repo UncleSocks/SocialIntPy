@@ -1,6 +1,6 @@
 # FBIntelPy: Python Facebook Intelligence Search Tool
 
-**FBIntelPy** is a Python-based Facebook intelligence search tool that aims to assists in generating filtered Facebook URLs. This is particularly relevant during OSINT investigations using the platform. This was inspired by IntelTechnqiue's web-based search tool; this tool has updated some of the depracated filters.
+**FBIntelPy** is a Python-based Facebook intelligence search tool that aims to assists in generating filtered Facebook URLs. This is was created for the upcoming TraceLabs Search Party 2026.02. This was inspired by IntelTechnqiue's web-based search tool; this tool has updated some of the depracated filters.
 
 In a nutshell, this tool supports the following filter types: **Posts**, **Photos**, **Videos**, **People**, **Events**, **User/Profile Information**, and **Global Search**. Some of these types also supports the addition of keywords and dates.
 
